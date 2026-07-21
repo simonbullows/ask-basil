@@ -1,10 +1,10 @@
 {
-  "name": "hermes",
-  "productName": "Hermes",
+  "name": "ask-basil",
+  "productName": "Ask Basil",
   "private": true,
   "version": "0.17.0",
-  "description": "Native desktop shell for Hermes Agent.",
-  "author": "Nous Research",
+  "description": "Ask Basil — Basileus headquarters (fork of Hermes Desktop).",
+  "author": "Simon Bullows",
   "type": "module",
   "main": "dist/electron-main.mjs",
   "engines": {
@@ -161,18 +161,19 @@
   },
   "build": {
     "electronVersion": "40.10.2",
-    "appId": "com.nousresearch.hermes",
-    "productName": "Hermes",
-    "executableName": "Hermes",
+    "appId": "com.basileus.askbasil",
+    "productName": "Ask Basil",
+    "executableName": "AskBasil",
     "protocols": [
       {
-        "name": "Hermes Protocol",
+        "name": "Ask Basil Protocol",
         "schemes": [
+          "askbasil",
           "hermes"
         ]
       }
     ],
-    "artifactName": "Hermes-${version}-${os}-${arch}.${ext}",
+    "artifactName": "AskBasil-${version}-${os}-${arch}.${ext}",
     "icon": "assets/icon",
     "directories": {
       "output": "release"
@@ -208,11 +209,11 @@
       "entitlements": "electron/entitlements.mac.plist",
       "entitlementsInherit": "electron/entitlements.mac.inherit.plist",
       "extendInfo": {
-        "CFBundleDisplayName": "Hermes",
-        "CFBundleExecutable": "Hermes",
-        "CFBundleName": "Hermes",
-        "NSAudioCaptureUsageDescription": "Hermes uses audio capture for voice conversations.",
-        "NSMicrophoneUsageDescription": "Hermes uses the microphone for voice input and voice conversations."
+        "CFBundleDisplayName": "Ask Basil",
+        "CFBundleExecutable": "AskBasil",
+        "CFBundleName": "Ask Basil",
+        "NSAudioCaptureUsageDescription": "Ask Basil uses audio capture for voice conversations.",
+        "NSMicrophoneUsageDescription": "Ask Basil uses the microphone for voice input and voice conversations."
       },
       "gatekeeperAssess": false,
       "hardenedRuntime": true,
@@ -222,7 +223,7 @@
       ]
     },
     "dmg": {
-      "title": "Install Hermes",
+      "title": "Install Ask Basil",
       "backgroundColor": "#f5f5f7",
       "iconSize": 96,
       "window": {
@@ -244,7 +245,7 @@
       ]
     },
     "win": {
-      "legalTrademarks": "Hermes",
+      "legalTrademarks": "Ask Basil",
       "target": [
         "nsis",
         "msi"
@@ -253,8 +254,8 @@
     },
     "linux": {
       "category": "Development",
-      "maintainer": "Nous Research <support@nousresearch.com>",
-      "synopsis": "Native desktop shell for Hermes Agent.",
+      "maintainer": "Simon Bullows",
+      "synopsis": "Ask Basil — Basileus headquarters (Hermes-based).",
       "target": [
         "AppImage",
         "deb",
@@ -265,8 +266,8 @@
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "perMachine": false,
-      "shortcutName": "Hermes",
-      "uninstallDisplayName": "Hermes",
+      "shortcutName": "Ask Basil",
+      "uninstallDisplayName": "Ask Basil",
       "warningsAsErrors": false
     }
   }
