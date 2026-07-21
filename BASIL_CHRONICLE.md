@@ -8,6 +8,15 @@ Format: append-only. Newest at the top.
 
 ---
 
+## 2026-07-21 — Live launch + agent interop
+
+- Bootstrapped `%LOCALAPPDATA%\\ask-basil` with SOUL, chronicle, config, auth
+- Oneshot identity check **passed**: “My name is Basil… I’m not Hermes.”
+- `hermes serve` live on `127.0.0.1:9119` with `hermes_home=…\\ask-basil`
+- ACP check OK; MCP serve / ACP / oneshot / serve documented in `AGENT_INTEROP.md`
+- `Start-AskBasil.ps1` flags: `-Oneshot`, `-Serve`, `-Acp`, `-Mcp`, `-Desktop`
+- Note: OpenRouter credits exhausted on this machine; openai-codex used for smoke test
+
 ## 2026-07-21 — Persona lock: Basil only
 
 - **Name:** Basil
