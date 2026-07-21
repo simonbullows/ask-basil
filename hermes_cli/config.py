@@ -317,7 +317,10 @@ _EXTRA_ENV_KEYS = frozenset({
 import yaml
 
 from hermes_cli.colors import Colors, color
-from hermes_cli.default_soul import DEFAULT_SOUL_MD, is_legacy_template_soul
+from hermes_cli.default_soul import (
+    DEFAULT_SOUL_MD,
+    should_seed_or_upgrade_soul,
+)
 
 
 # =============================================================================
@@ -893,24 +896,78 @@ def _secure_file(path):
 
 
 def _ensure_default_soul_md(home: Path) -> None:
-    """Seed a default SOUL.md into HERMES_HOME, upgrading legacy empty templates.
+    """Seed Basil SOUL.md into HERMES_HOME; upgrade stock Hermes / empty templates.
 
-    First run: write DEFAULT_SOUL_MD. Existing installs whose SOUL.md is still
-    the old comment-only scaffold (seeded by older install.sh / install.ps1 /
-    docker images, which shadowed the runtime default) get upgraded in place to
-    DEFAULT_SOUL_MD. A SOUL.md the user actually customized is never touched.
+    First run: write DEFAULT_SOUL_MD (Basil). Existing installs whose SOUL.md is
+    still the old comment-only scaffold or the upstream Hermes stock identity
+    get upgraded in place to Basil — but **stock Hermes home paths are never
+    rewritten** (so a fleet Hermes install keeps its own SOUL if HERMES_HOME
+    still points there). A SOUL.md the user actually customized is never touched.
     """
+    from hermes_cli.default_soul import is_stock_hermes_soul
+
     soul_path = home / "SOUL.md"
+    home_name = home.name.lower()
+    is_ask_basil_home = home_name in {"ask-basil", ".ask-basil"}
+
     if soul_path.exists():
         try:
             existing = soul_path.read_text(encoding="utf-8")
         except (OSError, UnicodeDecodeError):
             return
-        if not is_legacy_template_soul(existing):
+        if is_stock_hermes_soul(existing) and not is_ask_basil_home:
+            # Do not turn a stock Hermes install into Basil by accident.
             return
-        # Legacy empty template -> upgrade to the real default in place.
+        if not should_seed_or_upgrade_soul(existing):
+            return
+        # Legacy empty template or (Ask Basil home) stock Hermes identity -> Basil.
+    elif not is_ask_basil_home and home_name in {"hermes", ".hermes"}:
+        # Creating a brand-new SOUL under a stock Hermes path while running
+        # Ask Basil code: still seed Basil only for ask-basil homes; for hermes
+        # paths leave missing SOUL to upstream tools / explicit user action.
+        # (Fallback identity in prompt_builder is still Basil when no SOUL loads.)
+        return
     soul_path.write_text(DEFAULT_SOUL_MD, encoding="utf-8")
     _secure_file(soul_path)
+
+
+def _ensure_basil_chronicle(home: Path) -> None:
+    """Seed BASIL_CHRONICLE.md into HERMES_HOME so Basil can read self-history.
+
+    Copies from the product repo when available. If the home already has a
+    chronicle, leave it (user/runtime may append). If missing, seed from the
+    packaged/repo file next to this source tree.
+
+    Never writes into a stock Hermes home directory name.
+    """
+    if home.name.lower() in {"hermes", ".hermes"}:
+        return
+    dest = home / "BASIL_CHRONICLE.md"
+    if dest.exists():
+        return
+    # Prefer repo root (dev checkout), then docker/, then a minimal stub.
+    candidates = [
+        Path(__file__).resolve().parent.parent / "BASIL_CHRONICLE.md",
+        Path(__file__).resolve().parent.parent / "docker" / "BASIL_CHRONICLE.md",
+    ]
+    for src in candidates:
+        try:
+            if src.is_file():
+                dest.write_text(src.read_text(encoding="utf-8"), encoding="utf-8")
+                _secure_file(dest)
+                return
+        except (OSError, UnicodeDecodeError):
+            continue
+    try:
+        dest.write_text(
+            "# Basil Chronicle\n\n"
+            "No packaged chronicle found at seed time. Append dated entries here "
+            "as Ask Basil evolves. Newest at top.\n",
+            encoding="utf-8",
+        )
+        _secure_file(dest)
+    except OSError:
+        pass
 
 
 # Home paths whose directory skeleton has been created this process — see
@@ -965,6 +1022,7 @@ def ensure_hermes_home():
             d.mkdir(parents=True, exist_ok=True)
             _secure_dir(d)
         _ensure_default_soul_md(home)
+        _ensure_basil_chronicle(home)
 
     _HERMES_HOME_ENSURED.add(key)
 
@@ -989,6 +1047,7 @@ def _ensure_hermes_home_managed(home: Path):
     (home / "logs" / "curator").mkdir(parents=True, exist_ok=True)
     # Inside umask(0o007) scope — SOUL.md will be created as 0660
     _ensure_default_soul_md(home)
+    _ensure_basil_chronicle(home)
 
 
 # =============================================================================

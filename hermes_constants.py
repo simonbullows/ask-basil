@@ -44,12 +44,18 @@ def get_hermes_home_override() -> str | None:
 
 
 def _get_platform_default_hermes_home() -> Path:
-    """Return the platform-native default Hermes home path."""
+    """Return the platform-native default Ask Basil home path.
+
+    Ask Basil fork uses a separate home from stock Hermes so Basil's SOUL,
+    chronicle, and config never overwrite a fleet Hermes install (and vice
+    versa). Override with ``HERMES_HOME`` when you intentionally want a
+    shared or custom directory.
+    """
     if sys.platform == "win32":
         local_appdata = os.environ.get("LOCALAPPDATA", "").strip()
         base = Path(local_appdata) if local_appdata else Path.home() / "AppData" / "Local"
-        return base / "hermes"
-    return Path.home() / ".hermes"
+        return base / "ask-basil"
+    return Path.home() / ".ask-basil"
 
 
 def _hermes_home_from_env() -> Path:
